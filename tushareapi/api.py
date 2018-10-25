@@ -2,9 +2,11 @@ import tushare as ts
 
 import logging
 
+from const import const
 
 
-pro = ts.pro_api('640fd047dc9ca8079402b9d51902f27a545e1c82fd7629ac78ddda36')
+
+pro = ts.pro_api(const.TUSHARE_TOKEN)
 
 
 def stock_base():

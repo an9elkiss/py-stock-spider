@@ -3,12 +3,10 @@ import tushareapi.api as api
 
 import logging
 
-
 LOG_FORMAT = "%(asctime)s - %(levelname)s - %(message)s"
 logging.basicConfig(level=logging.DEBUG, format=LOG_FORMAT)
 
-# TODO git
-# TODO constant
+# TODO env (test/pro)
 
 def main():
 
@@ -18,15 +16,10 @@ def main():
 
     print(data.columns)
 
-    # for index, row in data.iterrows():
-    #     if index > 10:
-    #         break
-    #
-    #
-    #
-    #     print(row["symbol"], row["name"], row["area"], row["industry"], row["market"], row["exchange_id"],
-    #           row["list_date"], row["status"], row["create_time"], row["update_time"])
+    # base_dao.save_stock_basic(data)
 
     logging.info("main方法执行成功。")
 
 main()
+
+

@@ -1,10 +1,13 @@
 import pymysql
 
+from const import const
+
+
 conn = pymysql.connect(
-    host="106.15.228.141",
-    user="root",
-    password="Na8gRk",
-    database="a9-stock-pro",
+    host=const.DB_HOST,
+    user=const.DB_USER,
+    password=const.DB_PASSWORD,
+    database=const.DB_NAME,
     charset='utf8',
     cursorclass=pymysql.cursors.DictCursor)
 
@@ -14,6 +17,9 @@ cursor = conn.cursor()
 def save_stock_basic(data):
 
     for index, row in data.iterrows():
+        # if index > 2:
+        #     break
+
         row["status"] = 1
         row["create_by"] = "spy"
         row["update_by"] = "spy"
