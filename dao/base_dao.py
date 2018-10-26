@@ -2,6 +2,8 @@ import pymysql
 
 from const import const
 
+import logging
+
 
 conn = pymysql.connect(
     host=const.DB_HOST,
@@ -25,13 +27,48 @@ def save_stock_basic(data):
         row["update_by"] = "spy"
 
         cursor.execute(
-            "INSERT INTO t_stock_basic(symbol,name,area,industry,market,exchange_id,list_date,status,create_by,update_by) VALUES(%s,%s,%s,%s,%s,%s,%s,%s,%s,%s);",
-            (row["symbol"], row["name"], row["area"], row["industry"], row["market"], row["exchange_id"],row["list_date"], row["status"], row["create_by"], row["update_by"])
+            "INSERT INTO t_stock_basic(ts_code,symbol,name,area,industry,market,exchange_id,list_date,status,create_by,update_by) VALUES(%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s);",
+            (row["ts_code"], row["symbol"], row["name"], row["area"], row["industry"], row["market"], row["exchange_id"],row["list_date"], row["status"], row["create_by"], row["update_by"])
         )
 
     conn.commit()
 
+def save_stock_company(data):
+    data = data.fillna({'reg_capital': 0, 'employees': 0})
+    data = data.fillna('无')
 
+    for index, row in data.iterrows():
+        # if index > 2:
+        #     break
+
+        row["status"] = 1
+        row["create_by"] = "spy"
+        row["update_by"] = "spy"
+
+        cursor.execute(
+            "INSERT INTO t_stock_company(ts_code,chairman,manager,secretary,reg_capital,setup_date,province,city,introduction,website,email,office,employees,main_business,business_scope,status,create_by,update_by) VALUES(%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s);",
+            (row["ts_code"], row["chairman"], row["manager"], row["secretary"], row["reg_capital"], row["setup_date"],
+             row["province"], row["city"], row["introduction"],  row["website"],  row["email"],  row["office"],  row["employees"],  row["main_business"], row["business_scope"], row["status"], row["create_by"], row["update_by"])
+        )
+    conn.commit()
+
+def save_daily(data):
+
+    for index, row in data.iterrows():
+        # if index > 2:
+        #     break
+
+        row["status"] = 1
+        row["create_by"] = "spy"
+        row["update_by"] = "spy"
+
+        cursor.execute(
+            "INSERT INTO t_daily(ts_code,trade_date,`open`,high,low,`close`,pre_close,`change`,pct_change,vol,amount,status,create_by,update_by) VALUES(%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s);",
+            (row["ts_code"], row["trade_date"], row["open"], row["high"], row["low"], row["close"],
+             row["pre_close"], row["change"], row["pct_change"], row["vol"], row["amount"], row["status"], row["create_by"], row["update_by"])
+        )
+
+    conn.commit()
 
     # try:
     #     # 执行一条insert语句，返回受影响的行数 #
