@@ -1,22 +1,22 @@
 import pymysql
-
+from DBUtils.PooledDB import PooledDB
 from const import const
 
 import logging
 
-
-conn = pymysql.connect(
-    host=const.DB_HOST,
-    user=const.DB_USER,
-    password=const.DB_PASSWORD,
-    database=const.DB_NAME,
-    charset='utf8',
-    cursorclass=pymysql.cursors.DictCursor)
-
-cursor = conn.cursor()
-
+pool_db = PooledDB(creator=pymysql,
+                    mincached=3,
+                    maxcached=20,
+                    host=const.DB_HOST,
+                    user=const.DB_USER,
+                    password=const.DB_PASSWORD,
+                    db=const.DB_NAME,
+                    charset='utf8',
+                    cursorclass=pymysql.cursors.DictCursor)
 
 def save_stock_basic(data):
+    conn = pool_db.connection()
+    cursor = conn.cursor()
 
     for index, row in data.iterrows():
         # if index > 2:
@@ -25,6 +25,7 @@ def save_stock_basic(data):
         row["status"] = 1
         row["create_by"] = "spy"
         row["update_by"] = "spy"
+
 
         cursor.execute(
             "INSERT INTO t_stock_basic(ts_code,symbol,name,area,industry,market,exchange_id,list_date,status,create_by,update_by) VALUES(%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s);",
@@ -36,6 +37,9 @@ def save_stock_basic(data):
 def save_stock_company(data):
     data = data.fillna({'reg_capital': 0, 'employees': 0})
     data = data.fillna('无')
+
+    conn = pool_db.connection()
+    cursor = conn.cursor()
 
     for index, row in data.iterrows():
         # if index > 2:
@@ -53,22 +57,33 @@ def save_stock_company(data):
     conn.commit()
 
 def save_daily(data):
+    conn = pool_db.connection()
+    cursor = conn.cursor()
 
-    for index, row in data.iterrows():
-        # if index > 2:
-        #     break
+    try:
+        for index, row in data.iterrows():
+            # if index > 2:
+            #     break
 
-        row["status"] = 1
-        row["create_by"] = "spy"
-        row["update_by"] = "spy"
+            row["status"] = 1
+            row["create_by"] = "spy"
+            row["update_by"] = "spy"
 
-        cursor.execute(
-            "INSERT INTO t_daily(ts_code,trade_date,`open`,high,low,`close`,pre_close,`change`,pct_change,vol,amount,status,create_by,update_by) VALUES(%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s);",
-            (row["ts_code"], row["trade_date"], row["open"], row["high"], row["low"], row["close"],
-             row["pre_close"], row["change"], row["pct_change"], row["vol"], row["amount"], row["status"], row["create_by"], row["update_by"])
-        )
+            cursor.execute(
+                "INSERT INTO t_daily(ts_code,trade_date,`open`,high,low,`close`,pre_close,`change`,pct_change,vol,amount,status,create_by,update_by) VALUES(%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s);",
+                (row["ts_code"], row["trade_date"], row["open"], row["high"], row["low"], row["close"],
+                 row["pre_close"], row["change"], row["pct_change"], row["vol"], row["amount"], row["status"], row["create_by"], row["update_by"])
+            )
 
-    conn.commit()
+        conn.commit()
+
+    except Exception:
+        conn.rollback()
+        logging.error("dao - save_daily 执行异常 SQL 已回滚！")
+        raise
+    finally:
+        cursor.close()
+        conn.close()
 
     # try:
     #     # 执行一条insert语句，返回受影响的行数 #
