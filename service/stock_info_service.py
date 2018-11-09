@@ -26,6 +26,9 @@ def save_history_daily():
 
         data = api.daily(start_date)
 
+        if start_date == '20171231':
+            break
+
         if data.size > 0:
             base_dao.save_daily(data)
             break

@@ -8,18 +8,17 @@ import service.stock_info_service as service
 #         print('The job worked :)')
 
 
+scheduler = BackgroundScheduler()
+scheduler.start()
+
+
 def save_yesterday_daily():
 
-    scheduler = BackgroundScheduler()
-    # scheduler.add_job(service.save_yesterday_daily, 'cron', second='3')
     scheduler.add_job(service.save_yesterday_daily, 'cron', hour='6')
     # scheduler.add_listener(my_listener, EVENT_JOB_EXECUTED | EVENT_JOB_ERROR)
-    scheduler.start()
+
 
 def save_history_daily():
 
-    scheduler = BackgroundScheduler()
-    scheduler.add_job(service.save_history_daily, 'cron', second='3')
-    # scheduler.add_listener(my_listener, EVENT_JOB_EXECUTED | EVENT_JOB_ERROR)
-    scheduler.start()
+    scheduler.add_job(service.save_history_daily, 'cron', minute='*/3')
 

@@ -8,7 +8,6 @@ import datetime
 LOG_FORMAT = "%(asctime)s - %(levelname)s - %(message)s"
 logging.basicConfig(level=logging.DEBUG, format=LOG_FORMAT, filename=const.LOG_FILE_PATH)
 
-# TODO 移除config
 
 def main():
 
