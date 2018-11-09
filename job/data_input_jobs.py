@@ -19,7 +19,7 @@ def save_yesterday_daily():
 def save_history_daily():
 
     scheduler = BackgroundScheduler()
-    scheduler.add_job(service.save_history_daily, 'cron', second='*/2')
+    scheduler.add_job(service.save_history_daily, 'cron', second='3')
     # scheduler.add_listener(my_listener, EVENT_JOB_EXECUTED | EVENT_JOB_ERROR)
     scheduler.start()
 

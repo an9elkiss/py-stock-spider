@@ -4,8 +4,9 @@ import tushareapi.api as api
 import datetime
 import dao.base_dao as base_dao
 import logging
+import time
 
-start_date = datetime.date(2018, 9, 30)
+# start_date = datetime.date(2018, 9, 30)
 
 def save_yesterday_daily():
     yesterday = (datetime.date.today() - datetime.timedelta(1)).strftime("%Y%m%d")
@@ -15,13 +16,42 @@ def save_yesterday_daily():
 
     base_dao.save_daily(data)
 
-# 线程不安全，使用了全局变量 start_date
 def save_history_daily():
-    global start_date
+    start_date = base_dao.find_min_daily()
 
-    logging.info("service - save_history_daily %s ...", start_date)
+    while(True):
 
-    # base_dao.save_daily(start_date_for_history_daily)
+        start_date = (datetime.datetime.strptime(start_date, '%Y%m%d') - datetime.timedelta(1)).strftime("%Y%m%d")
+        logging.info("service - save_history_daily %s ...", start_date)
 
-    start_date = start_date - datetime.timedelta(1)
+        data = api.daily(start_date)
+
+        if data.size > 0:
+            base_dao.save_daily(data)
+            break
+
+def save_dividend_all():
+    logging.info("service - save_dividend_all ...")
+
+    stocks = api.stock_base()
+    for index, row in stocks.iterrows():
+        data = api.dividend(row["ts_code"])
+        base_dao.save_dividend(data)
+
+    logging.info("service - save_dividend_all success.")
+
+def save_fina_indicator_all():
+    logging.info("service - save_fina_indicator_all ...")
+
+    stocks = api.stock_base()
+    for index, row in stocks.iterrows():
+        if base_dao.is_fina_indicator_exist(row["ts_code"]):
+            continue
+        elif row["market"] == '主板':
+            data = api.fina_indicator(row["ts_code"])
+            base_dao.save_fina_indicator(data)
+
+            time.sleep(3)
+
+    logging.info("service - save_fina_indicator_all success.")
 
